@@ -79,3 +79,7 @@
     box-shadow: 10014px 0 0 -5px #157AAC;
   }
 }
+
+.root:has(.dot-pulse) {
+  background-color: black;
+}
