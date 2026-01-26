@@ -3,4 +3,5 @@
 ## Need to use `backend` repo running on port 5000 as the Mongo DB
 
 ## To run
-From root, run `npm start`
+ - Do a `npm install`
+ - From root, run `npm start`
