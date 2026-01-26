@@ -4,15 +4,27 @@ import { ToastContainer} from 'react-toastify';
 import common from './helpers/common';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
+import { 
+  ScatterChart, 
+  Scatter, 
+  XAxis, 
+  YAxis, 
+  ZAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer 
+} from 'recharts';
 
 function App() {
   const [ stateVal, setStateVal ] = useState({
     loading: true,
     title:"",
     file:"",
-    allFiles: null
+    allFiles: null,
+    isData: false,
+    dataJSON: []
   });
-  const { title, file, allFiles, loading }  = stateVal
+  const { title, file, allFiles, loading, isData, dataJSON }  = stateVal
 
   const formRef = useRef(null)
 
@@ -35,6 +47,8 @@ function App() {
   const plotdata = async (filename) => {
     try {
        const { data: { status = "false", data = []}} = await axios.get(`http://localhost:5000/getFile/${filename}`);
+       const dataJSON = JSON.parse(data);
+       setStateVal((prev) => ({ ...prev, dataJSON, isData: true}))
     } catch (e) {
       common.displayMessage('error',e?.response?.data || 'Error plotting data')
     }
@@ -81,7 +95,7 @@ function App() {
       </div>
       <h2 className="text-center m-8">Pick a dataset to plot</h2>
       <div className="mt-4 flex items-center justify-evenly">
-        { allFiles === null ? "" : allFiles.map(({title, filename}) => {
+        { !allFiles || allFiles.length === 0 ? <div className="bg-blue-100 border-t border-b border-blue-500 text-blue-700 px-4 py-3" role="alert"><span className="font-medium">No datasets available</span></div> : allFiles.map(({title, filename}) => {
           return (
             <a href="/#" className="bg-neutral-primary-soft block max-w-sm p-6 border border-default rounded-base shadow-xs hover:bg-neutral-secondary-medium">
               <h5 class="mb-3 text-2xl font-semibold tracking-tight text-heading leading-8">{title}</h5>
@@ -93,9 +107,27 @@ function App() {
         })
         }
       </div>
-      <div className="mt-4 flex items-center justify-evenly">
-        
-      </div>
+      { isData && 
+        <div className="mt-4 flex items-center justify-evenly">
+          <div style={{ width: '100%', height: 400 }}>
+              <ResponsiveContainer>
+                <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  
+                  {/* Define your Axes and map them to keys in your JSON */}
+                  <XAxis type="number" dataKey="X" name="Stature" unit="cm" />
+                  <YAxis type="number" dataKey="Y" name="Weight" unit="kg" />
+                  
+                  {/* Tooltip shows data on hover */}
+                  <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+                  
+                  {/* The Scatter plot itself */}
+                  <Scatter name="User Data" data={dataJSON} fill="#8884d8" />
+                </ScatterChart>
+              </ResponsiveContainer>
+            </div>        
+        </div>
+      }
       <ToastContainer
           position="top-right"
           autoClose={5000}
