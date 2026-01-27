@@ -42,7 +42,7 @@ const Data = () => {
 
   const plotdata = async (filename) => {
     try {
-       const { data: { status = "false", data = []}} = await axios.get(`http://${process.env.REACT_APP_BACKEND}/getFile/${filename}`);
+       const { data: { status = "false", data = []}} = await axios.get(`http://${process.env.REACT_APP_BACKEND}:5000/getFile/${filename}`);
        const dataJSON = typeof data === 'string' ? JSON.parse(data) : data;
        setStateVal((prev) => ({ ...prev, dataJSON, isData: true}))
     } catch (e) {
