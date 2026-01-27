@@ -31,7 +31,7 @@ const Data = () => {
 
   const getAllFiles = async () => {
     try {
-      const { data: { status = "false", data = []}} = await axios.get("http://localhost:5000/getFiles");
+      const { data: { status = "false", data = []}} = await axios.get(`http://${process.env.REACT_APP_BACKEND}:5000/getFiles`);
       if (status === 'ok') {
         setStateVal((prev) => ({ ...prev, allFiles: data}))
       }
@@ -55,7 +55,7 @@ const Data = () => {
       const formData = new FormData()
       formData.append('title',title)
       formData.append('file',file)
-      const result = await axios.post("http://localhost:5000/uploadFile",formData, { headers: { "Content-Type": "multipart/form-data"}})
+      const result = await axios.post(`http://${process.env.REACT_APP_BACKEND}:5000/uploadFile`,formData, { headers: { "Content-Type": "multipart/form-data"}})
       if (formRef.current) {
         formRef.current.reset();
       }
