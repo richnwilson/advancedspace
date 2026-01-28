@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import common from '../helpers/common';
@@ -9,6 +9,13 @@ const Auth = () => {
     password: '',
     loading: false
   });
+
+  useEffect(() => {
+    // Is have a valid token still, then navigate to data
+    const localStorageToken = localStorage.getItem('myAdvancedSpaceAccess')
+    if (localStorageToken && common.decodeToken(localStorageToken)) navigate('/data')
+  }, [])
+
   const { email, password, loading }  = stateVal;
   
   const isFormValid = email.trim().length > 0 && password.trim().length > 0
@@ -18,8 +25,8 @@ const Auth = () => {
 
   const handleAuth = async (endpoint) => {
     try {
-        setStateVal((prev) => ({ ...prev, loading: true}))
-
+        setStateVal((prev) => ({ ...prev, loading: true}));
+        
         const { data : { token = null, message = ""} } = await axios.post(`${process.env.REACT_APP_BACKEND}/${endpoint}`, {
             email,
             password

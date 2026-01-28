@@ -1,4 +1,5 @@
-import { toast } from 'react-toastify'
+import { toast } from 'react-toastify';
+import { jwtDecode } from "jwt-decode";
 
 const common = {
     displayMessage: (level, Msg) => {
@@ -16,7 +17,10 @@ const common = {
 
         }
         return toast[level](msg);
+    },
+    decodeToken: (token) => {
+        const { exp } = jwtDecode(token)
+        return exp * 1000 >= Date.now();
     }  
 }
-
 export default common;
