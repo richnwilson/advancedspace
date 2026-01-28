@@ -31,7 +31,7 @@ const Data = () => {
 
   const getAllFiles = async () => {
     try {
-      const { data: { status = "false", data = []}} = await axios.get(`${process.env.REACT_APP_BACKEND}:5000/getFiles`);
+      const { data: { status = "false", data = []}} = await axios.get(`${process.env.REACT_APP_BACKEND}/getFiles`);
       if (status === 'ok') {
         setStateVal((prev) => ({ ...prev, allFiles: data}))
       }
@@ -42,7 +42,7 @@ const Data = () => {
 
   const plotdata = async (filename) => {
     try {
-       const { data: { status = "false", data = []}} = await axios.get(`${process.env.REACT_APP_BACKEND}:5000/getFile/${filename}`);
+       const { data: { status = "false", data = []}} = await axios.get(`${process.env.REACT_APP_BACKEND}/getFile/${filename}`);
        const dataJSON = typeof data === 'string' ? JSON.parse(data) : data;
        setStateVal((prev) => ({ ...prev, dataJSON, isData: true}))
     } catch (e) {
@@ -55,7 +55,7 @@ const Data = () => {
       const formData = new FormData()
       formData.append('title',title)
       formData.append('file',file)
-      const result = await axios.post(`${process.env.REACT_APP_BACKEND}:5000/uploadFile`,formData, { headers: { "Content-Type": "multipart/form-data"}})
+      const result = await axios.post(`${process.env.REACT_APP_BACKEND}/uploadFile`,formData, { headers: { "Content-Type": "multipart/form-data"}})
       if (formRef.current) {
         formRef.current.reset();
       }

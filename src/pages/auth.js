@@ -20,7 +20,7 @@ const Auth = () => {
     try {
         setStateVal((prev) => ({ ...prev, loading: true}))
 
-        const { data : { token = null, message = ""} } = await axios.post(`${process.env.REACT_APP_BACKEND}:5000/${endpoint}`, {
+        const { data : { token = null, message = ""} } = await axios.post(`${process.env.REACT_APP_BACKEND}/${endpoint}`, {
             email,
             password
         });
