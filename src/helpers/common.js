@@ -19,8 +19,22 @@ const common = {
         return toast[level](msg);
     },
     decodeToken: (token) => {
-        const { exp } = jwtDecode(token)
-        return exp * 1000 >= Date.now();
-    }  
+        try {
+            const { exp } = jwtDecode(token)
+            return exp * 1000 >= Date.now();
+        } catch(e) {
+            console.log(e)
+        }
+    },
+    authorization: (credentials) => {
+        return { 
+            headers: {
+                'Authorization': `Bearer ${credentials}`
+              }
+        }
+    },
+    getLocalStorage: (storageName) => {
+        return localStorage.getItem(storageName)
+    }
 }
 export default common;

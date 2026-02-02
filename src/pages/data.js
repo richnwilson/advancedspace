@@ -24,6 +24,9 @@ const Data = () => {
 
   const formRef = useRef(null)
 
+  const { REACT_APP_CREDENTIALS_NAME, REACT_APP_BACKEND, PUBLIC_URL } = process.env;
+
+
   useEffect(() => {
     getAllFiles()
     setStateVal((prev) => ({ ...prev, loading: false}))
@@ -31,9 +34,16 @@ const Data = () => {
 
   const getAllFiles = async () => {
     try {
-      const { data: { status = "false", data = []}} = await axios.get(`${process.env.REACT_APP_BACKEND}/getFiles`);
-      if (status === 'ok') {
-        setStateVal((prev) => ({ ...prev, allFiles: data}))
+      const localStorageCredentials = common.getLocalStorage(REACT_APP_CREDENTIALS_NAME)
+      if (localStorageCredentials) {
+        const { data: { status = "false", data = []}} = await axios.get(`${REACT_APP_BACKEND}/getFiles`,{
+          ...common.authorization(localStorageCredentials)
+        });
+        if (status === 'ok') {
+          setStateVal((prev) => ({ ...prev, allFiles: data}))
+        }
+      } else {
+          setStateVal((prev) => ({ ...prev, allFiles: []}))
       }
     } catch (e) {
       common.displayMessage('error',e?.response?.data || 'Error showing files')
@@ -42,10 +52,16 @@ const Data = () => {
 
   const plotdata = async (filename) => {
     try {
-       const { data: { status = "false", data = []}} = await axios.get(`${process.env.REACT_APP_BACKEND}/getFile/${filename}`);
+      const localStorageCredentials = localStorage.getItem(REACT_APP_CREDENTIALS_NAME)
+      if (localStorageCredentials) {      
+        const { data: { status = "false", data = []}} = await axios.get(`${REACT_APP_BACKEND}/getFile/${filename}`,{
+          ...common.authorization(localStorageCredentials)
+        });
        const dataJSON = typeof data === 'string' ? JSON.parse(data) : data;
        setStateVal((prev) => ({ ...prev, dataJSON, isData: true}))
+      }
     } catch (e) {
+      setStateVal((prev) => ({ ...prev, dataJSON: [], isData: false}))
       common.displayMessage('error',e?.response?.data || 'Error plotting data')
     }
   }
@@ -55,7 +71,7 @@ const Data = () => {
       const formData = new FormData()
       formData.append('title',title)
       formData.append('file',file)
-      const result = await axios.post(`${process.env.REACT_APP_BACKEND}/uploadFile`,formData, { headers: { "Content-Type": "multipart/form-data"}})
+      const result = await axios.post(`${REACT_APP_BACKEND}/uploadFile`,formData, { headers: { "Content-Type": "multipart/form-data"}})
       if (formRef.current) {
         formRef.current.reset();
       }
@@ -71,7 +87,7 @@ const Data = () => {
   return (
     <>
     <div className="sm:mx-auto sm:w-full sm:max-w-sm mt-2">
-        <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="Advanced Space" className="mx-auto h-10 w-auto" />
+        <img src={`${PUBLIC_URL}/logo.png`} alt="Advanced Space" className="mx-auto h-10 w-auto" />
         <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight">Upload csv file to mongo and show uploads in browser</h2>
     </div>  
       <h2 className="text-center m-8"></h2>

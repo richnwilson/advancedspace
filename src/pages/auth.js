@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import common from '../helpers/common';
@@ -10,9 +10,11 @@ const Auth = () => {
     loading: false
   });
 
+  const { REACT_APP_BACKEND, REACT_APP_TOKEN_NAME, REACT_APP_CREDENTIALS_NAME, PUBLIC_URL } = process.env;
+
   useEffect(() => {
     // Is have a valid token still, then navigate to data
-    const localStorageToken = localStorage.getItem('myAdvancedSpaceAccess')
+    const localStorageToken = common.getLocalStorage(REACT_APP_TOKEN_NAME);
     if (localStorageToken && common.decodeToken(localStorageToken)) navigate('/data')
   }, [])
 
@@ -27,15 +29,16 @@ const Auth = () => {
     try {
         setStateVal((prev) => ({ ...prev, loading: true}));
         
-        const { data : { token = null, message = ""} } = await axios.post(`${process.env.REACT_APP_BACKEND}/${endpoint}`, {
+        const { data : { token = null, jwe = null, message = ""} } = await axios.post(`${REACT_APP_BACKEND}/${endpoint}`, {
             email,
             password
         });
         setSearchParams({});
         setStateVal((prev) => ({ ...prev, loading: false}))
 
-        if (token) {
-            localStorage.setItem('myAdvancedSpaceAccess', token);
+        if (token && jwe) {
+            localStorage.setItem(REACT_APP_TOKEN_NAME, token);
+            localStorage.setItem(REACT_APP_CREDENTIALS_NAME, jwe);
             common.displayMessage('success',"Login successfull")
 
         } else {
@@ -55,7 +58,7 @@ const Auth = () => {
         { loading && <div className="dot-pulse"></div>}
         <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
             <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-                <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="Advanced Space" className="mx-auto h-10 w-auto" />
+                <img src={`${PUBLIC_URL}/logo.png`} alt="Advanced Space" className="mx-auto h-10 w-auto" />
                 <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight">Sign in to your account</h2>
             </div>  
             <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
