@@ -37,7 +37,7 @@ const Data = () => {
       const localStorageCredentials = common.getLocalStorage(REACT_APP_CREDENTIALS_NAME)
       if (localStorageCredentials) {
         const { data: { status = "false", data = []}} = await axios.get(`${REACT_APP_BACKEND}/getFiles`,{
-          ...common.authorization(localStorageCredentials)
+          headers: { ...common.authorization(localStorageCredentials)}
         });
         if (status === 'ok') {
           setStateVal((prev) => ({ ...prev, allFiles: data}))
@@ -55,7 +55,7 @@ const Data = () => {
       const localStorageCredentials = localStorage.getItem(REACT_APP_CREDENTIALS_NAME)
       if (localStorageCredentials) {      
         const { data: { status = "false", data = []}} = await axios.get(`${REACT_APP_BACKEND}/getFile/${filename}`,{
-          ...common.authorization(localStorageCredentials)
+          headers: { ...common.authorization(localStorageCredentials)}
         });
        const dataJSON = typeof data === 'string' ? JSON.parse(data) : data;
        setStateVal((prev) => ({ ...prev, dataJSON, isData: true}))
@@ -71,12 +71,16 @@ const Data = () => {
       const formData = new FormData()
       formData.append('title',title)
       formData.append('file',file)
-      const result = await axios.post(`${REACT_APP_BACKEND}/uploadFile`,formData, { headers: { "Content-Type": "multipart/form-data"}})
-      if (formRef.current) {
-        formRef.current.reset();
+      const localStorageCredentials = localStorage.getItem(REACT_APP_CREDENTIALS_NAME)
+      if (localStorageCredentials) {         
+        const result = await axios.post(`${REACT_APP_BACKEND}/uploadFile`,formData, { headers: { "Content-Type": "multipart/form-data", ...common.authorization(localStorageCredentials)}})
+
+        if (formRef.current) {
+          formRef.current.reset();
+        }
+        await getAllFiles()
+        common.displayMessage('success',result.data)
       }
-      await getAllFiles()
-      common.displayMessage('success',result.data)
     } catch(e) {
       common.displayMessage('error',e?.response?.data || '')
     }

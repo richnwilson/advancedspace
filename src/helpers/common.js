@@ -27,11 +27,9 @@ const common = {
         }
     },
     authorization: (credentials) => {
-        return { 
-            headers: {
+        return {
                 'Authorization': `Bearer ${credentials}`
               }
-        }
     },
     getLocalStorage: (storageName) => {
         return localStorage.getItem(storageName)
